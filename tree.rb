@@ -1,12 +1,4 @@
-class Node
-  attr_accessor :data, :left, :right
-
-  def initialize(data)
-    @data = data
-    @left = nil
-    @right = nil
-  end
-end
+require_relative "node"
 
 class Tree
   attr_accessor :root
@@ -22,30 +14,50 @@ class Tree
     node
   end
 
-  def pre_order(node)
-    return if node.nil?
 
-    print "#{node.data} "
-    pre_order(node.left)
-    pre_order(node.right)
+  def preorder(node = @root)
+    return if node.nil?
+    temp = []
+    temp << node.data
+    temp << preorder(node.left)
+    temp << preorder(node.right)
+    temp.flatten.compact
   end
 
-  def in_order(node)
+  def inorder(node = @root)
     return if node.nil?
-
-    pre_order(node.left)
-    print "#{node.data} "
-    pre_order(node.right)
+    temp = []
+    temp << inorder(node.left)
+    temp << node.data
+    temp << inorder(node.right)
+    temp.flatten.compact
   end
 
-  def post_order(node)
+  def postorder(node = @root)
     return if node.nil?
-
-    pre_order(node.left)
-    pre_order(node.right)
-    print "#{node.data} "
+    temp = []
+    temp << postorder(node.left)
+    temp << postorder(node.right)
+    temp << node.data
+    temp.flatten.compact
+  end
+  
+  def traverse(data, node)
+    temp = node
+    data < temp.data ? temp = temp.left : temp = temp.right
+    temp
   end
 
+  def insert(data, node = @root)
+    temp = node
+    loop do
+      temp = traverse(data, temp)
+      break if traverse(data, temp).nil?
+    end
+    data < temp.data ? temp.left = Node.new(data) : temp.right = Node.new(data)
+  end
+
+  
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
@@ -55,9 +67,3 @@ end
 
 tree = Tree.new
 tree.root = tree.build_tree([20, 19, 3, 145, 67, 98, 8, 56])
-puts 'pre-order traversal of constructed BST'
-tree.pre_order(tree.root)
-puts 'in-order traversal of constructed BST'
-tree.in_order(tree.root)
-puts 'post-order traversal of constructed BST'
-tree.post_order(tree.root)
