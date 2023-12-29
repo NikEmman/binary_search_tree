@@ -18,50 +18,49 @@ class Tree
     node
   end
 
-  def pre_order(node = @root, &block) #block doesn't work
-    return if node.nil?
+  def pre_order(node = @root, &block)
+    return [] if node.nil?
 
-    temp = []
-    temp << node.data
-    temp << pre_order(node.left)
-    temp << pre_order(node.right)
-    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
+    result = []
+    result << node.data
+    result += pre_order(node.left)
+    result += pre_order(node.right)
+    block_given? ? result.each { |x| yield x } : result
   end
 
-  def in_order(node = @root, &block) #block doesn't work
-    return if node.nil?
+  def in_order(node = @root, &block)
+    return [] if node.nil?
 
-    temp = []
-    temp << in_order(node.left)
-    temp << node.data
-    temp << in_order(node.right)
-    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
+    result = []
+    result += in_order(node.left)
+    result << node.data
+    result += in_order(node.right)
+    block_given? ? result.each { |x| yield x } : result
   end
 
-  def post_order(node = @root, &block) #block doesn't work
-    return if node.nil?
+  def post_order(node = @root, &block)
+    return [] if node.nil?
 
-    temp = []
-    temp << post_order(node.left)
-    temp << post_order(node.right)
-    temp << node.data
-    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
+    result = []
+    result += post_order(node.left)
+    result += post_order(node.right)
+    result << node.data
+    block_given? ? result.each { |x| yield x } : result
   end
 
-  def level_order(&block) #block doesn't work
-    nil if @root.nil?
-    queue = []
-    array = []
-    queue.push(@root)
+  def level_order(&block)
+    return [] if @root.nil?
+
+    queue = [@root]
+    result = []
     until queue.empty?
-      block_given? ? (yield queue[0].data) : array.push(queue[0].data)
-      queue.push(queue[0].left) unless queue[0].left.nil?
-      queue.push(queue[0].right) unless queue[0].right.nil?
-      queue.shift
+      node = queue.shift
+      block_given? ? (yield node.data) : result << node.data
+      queue << node.left unless node.left.nil?
+      queue << node.right unless node.right.nil?
     end
-    array unless block_given?
+    result unless block_given?
   end
-
 
   def traverse(data, node)
     temp = node
