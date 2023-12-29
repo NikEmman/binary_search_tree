@@ -18,35 +18,50 @@ class Tree
     node
   end
 
-  def preorder(node = @root)
+  def pre_order(node = @root, &block) #block doesn't work
     return if node.nil?
 
     temp = []
     temp << node.data
-    temp << preorder(node.left)
-    temp << preorder(node.right)
-    temp.flatten.compact
+    temp << pre_order(node.left)
+    temp << pre_order(node.right)
+    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
   end
 
-  def inorder(node = @root)
+  def in_order(node = @root, &block) #block doesn't work
     return if node.nil?
 
     temp = []
-    temp << inorder(node.left)
+    temp << in_order(node.left)
     temp << node.data
-    temp << inorder(node.right)
-    temp.flatten.compact
+    temp << in_order(node.right)
+    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
   end
 
-  def postorder(node = @root)
+  def post_order(node = @root, &block) #block doesn't work
     return if node.nil?
 
     temp = []
-    temp << postorder(node.left)
-    temp << postorder(node.right)
+    temp << post_order(node.left)
+    temp << post_order(node.right)
     temp << node.data
-    temp.flatten.compact
+    block_given? ? temp.flatten.compact.each{|x| yield x} : temp.flatten.compact
   end
+
+  def level_order(&block) #block doesn't work
+    nil if @root.nil?
+    queue = []
+    array = []
+    queue.push(@root)
+    until queue.empty?
+      block_given? ? (yield queue[0].data) : array.push(queue[0].data)
+      queue.push(queue[0].left) unless queue[0].left.nil?
+      queue.push(queue[0].right) unless queue[0].right.nil?
+      queue.shift
+    end
+    array unless block_given?
+  end
+
 
   def traverse(data, node)
     temp = node
@@ -71,8 +86,6 @@ class Tree
   end
 
   def delete(data)
-    # add a clause to return error if data doesn't exist
-    # work in progress, also try using assigning grandchild_left, grandchild_right for cleaner code
     temp = @root
     temp = traverse(data, temp) until left?(data, temp) || right?(data, temp)
     child = traverse(data, temp)
@@ -101,18 +114,34 @@ class Tree
     temp
   end
 
-  def level_order
-    nil if @root.nil?
-    queue = []
-    array = []
-    queue.push(@root)
-    until queue.empty?
-      block_given? ? (yield queue[0]) : array.push(queue[0].data)
-      queue.push(queue[0].left) unless queue[0].left.nil?
-      queue.push(queue[0].right) unless queue[0].right.nil?
-      queue.shift
+  def depth(node)
+    temp = @root
+    counter = 0
+    until temp.data == node.data
+      temp = traverse(node.data, temp)
+      counter +=1
     end
-    array unless block_given?
+    counter
+  end
+
+  def height(node)
+    depths = []
+    array = in_order
+     if node.data < @root.data
+      array = array.select{|x| x < @root.data}
+     else
+      array = array.select{|x| x > @root.data}
+     end
+    array.each{|x| depths.push(depth(find(x)))}
+    depths.max - depth(node)
+  end
+
+  def balanced?
+    (height(@root.right) - height(@root.left)).abs < 2
+  end
+
+  def rebalance
+    @root = build_tree(in_order)
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
