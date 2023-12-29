@@ -95,6 +95,26 @@ class Tree
     end
   end
 
+  def find(data)
+    temp = @root
+    temp = traverse(data, temp) until temp.data == data || (temp.left.nil? && temp.right.nil?)
+    temp
+  end
+
+  def level_order
+    nil if @root.nil?
+    queue = []
+    array = []
+    queue.push(@root)
+    until queue.empty?
+      block_given? ? (yield queue[0]) : array.push(queue[0].data)
+      queue.push(queue[0].left) unless queue[0].left.nil?
+      queue.push(queue[0].right) unless queue[0].right.nil?
+      queue.shift
+    end
+    array unless block_given?
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.data}"
