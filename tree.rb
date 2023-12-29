@@ -1,7 +1,3 @@
-# rubocop:disable Metrics/PerceivedComplexity
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/CyclomaticComplexity
-# rubocop:disable Metrics/AbcSize
 require_relative 'node'
 
 class Tree
@@ -152,7 +148,3 @@ end
 
 tree = Tree.new
 tree.root = tree.build_tree([20, 19, 3, 145, 67, 98, 8, 56])
-# rubocop:enable Metrics/AbcSize
-# rubocop:enable Metrics/CyclomaticComplexity
-# rubocop:enable Metrics/MethodLength
-# rubocop:enable Metrics/PerceivedComplexity
